@@ -26,10 +26,11 @@ A Geospatial AI (GeoAI) platform engineered to predict and monitor public safety
 
       The trained Logistic Regression model achieves high predictive granularity, demonstrating that public safety threats interact dynamically depending on environmental context.
    
-      Scenario 1: Late Summer Night (July, 23:00)
+     (Late Summer Evening.png): Late Summer Night (July, 23:00)
       During summer nights, the central urban core remains relatively stable due to strong Sergek CCTV coverage and high street illumination levels, though nightlife districts show moderate caution indicated by lime    markers. Concurrently, major high-speed entry tracts and suburban highways experience a critical risk surge due to pitch darkness and high velocity factors. Most notably, Konaev City turns red, capturing peak weekend resort traffic and intense infrastructure load.
 
-      Scenario 2: Early Winter Morning (January, 08:00)
+      ![Winter Morning Risk Map](winter.png)
+: Early Winter Morning (January, 08:00)
       In January at 08:00 AM, dawn has not yet broken in Almaty, escalating the baseline hazard. While Konaev City returns to complete dark green due to the off-season winter lull, the southern Medeu and Shymbulak Mountain Cluster, along with the Dostyk Avenue Corridor, shift heavily into the red zone. The AI accurately detects a critical winter weekend confluence: extreme tourist density heading to ski resorts, freezing mountain road conditions, and imminent traffic gridlocks.
 
    3. Tech Stack
