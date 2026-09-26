@@ -1,4 +1,3 @@
-
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
@@ -119,17 +118,17 @@ def run_backbone_engine():
         else: is_dark = 1 if (h >= 20 or h <= 6) else 0
         is_dark_list.append(is_dark)
         
-        if dist == 'Mountain cluster (Medeu/Shymbulak)' and (m == 12 or m == 1 or m == 2): t_season = np.random.uniform(0.8, 1.0)
-        elif dist == 'city of Konaev (Kapshagai)' and (m == 6 or m == 7 or m == 8): t_season = np.random.uniform(0.8, 1.0)
+        if dist == 'Mountain cluster (Medeu/Shymbulak)' and m in: t_season = np.random.uniform(0.8, 1.0)
+        elif dist == 'city of Konaev (Kapshagai)' and m in: t_season = np.random.uniform(0.8, 1.0)
         else: t_season = np.random.uniform(0.0, 0.2)
         tourist_seasons.append(t_season)
         
         is_hw = 1 if dist in ['Kulzhinka Highway', 'Talgar Highway', 'Tashkent tract', 'Highway KAZ-08 (Almaty–Kapshagay)'] else 0
-        if is_hw == 1: hazard = np.random.uniform(0.7, 0.95) if (m == 12 or m == 1 or m == 2) else np.random.uniform(0.4, 0.6)
+        if is_hw == 1: hazard = np.random.uniform(0.7, 0.95) if m in [12, 1, 2] else np.random.uniform(0.4, 0.6)
         else: hazard = np.random.uniform(0.1, 0.3)
         road_hazards.append(hazard)
         
-        if h in: crowd = np.random.uniform(0.0, 0.1)
+        if h in list(range(1, 6)): crowd = np.random.uniform(0.0, 0.1)
         elif wd >= 5 and dist in ['Mountain cluster (Medeu/Shymbulak)', 'city of Konaev (Kapshagai)']: crowd = np.random.uniform(0.7, 1.0)
         elif wd < 5 and dist in ['Almaly district', 'Bostandyk district']: crowd = np.random.uniform(0.6, 0.9)
         else: crowd = np.random.uniform(0.3, 0.6)
@@ -149,11 +148,11 @@ def run_backbone_engine():
         risk_prob = 0.05
         if row['hour'] >= 22 or row['hour'] <= 4: risk_prob += 0.15
         if row['day_of_week'] >= 5: risk_prob += 0.10
-        if row['district'] == 'city of Konaev (Kapshagai)' and (row['month'] == 6 or row['month'] == 7 or row['month'] == 8): risk_prob += 0.30
-        if row['district'] == 'Mountain cluster (Medeu/Shymbulak)' and (row['month'] == 12 or row['month'] == 1 or row['month'] == 2): risk_prob += 0.25
+        if row['district'] == 'city of Konaev (Kapshagai)' and row['month'] in: risk_prob += 0.30
+        if row['district'] == 'Mountain cluster (Medeu/Shymbulak)' and row['month'] in: risk_prob += 0.25
 
         risk_prob += row['is_dark'] * 0.10 + row['tourist_season'] * 0.15 + row['road_hazard'] * 0.10 + row['crowd_density'] * 0.08 - row['cctv_coverage'] * 0.12
-        if row['minute'] in: risk_prob += 0.02
+                if row['minute'] in: risk_prob += 0.02
         risk_prob = max(0.01, min(0.99, risk_prob))
         targets.append(1 if np.random.rand() < risk_prob else 0)
         
@@ -186,49 +185,64 @@ current_minute = (current_time.minute // 10) * 10
 
 with st.sidebar:
     st.markdown("<h1 style='color: #38bdf8; margin-bottom: 0;'>SafeCity Almaty</h1>", unsafe_allow_html=True)
-    st.markdown("Predictive AI Framework", unsafe_allow_html=True)
+    st.markdown("<p style='color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;'>Predictive AI Framework</p>", unsafe_allow_html=True)
     st.markdown("### System Telemetry")
-    st.info(f"⏰ Server Time: {current_hour:02d}:{current_minute:02d}
-
-📅 Calendar State: Month {current_month} / Day {current_day_of_week}")
+    st.info(f"⏰ Server Time: {current_hour:02d}:{current_minute:02d}\n\n📅 Calendar State: Month {current_month} / Day {current_day_of_week}")
     st.markdown("### Model Specifications")
     st.text_input("Core Algorithm", "Logistic Regression", disabled=True)
     st.text_input("Operational Dataset", "75,000 Verified Rows", disabled=True)
     st.text_input("Evaluation Pipeline", "Live 10-Min Inference Loop", disabled=True)
     st.markdown("### Risk Severity Legend")
-    st.markdown(""
-    "🟢 Low Risk Vector (Secure)
-    "
-    "🟡 Moderate Caution Required
-    "
-    "🔴 High Risk Threat Vector"
-    "", unsafe_allow_html=True)
-    TOTAL_POINTS = 35000
-    X_live = X_template.sample(TOTAL_POINTS, random_state=42).copy()
-    X_live_scaled = scaler.transform(X_live)
-    y_probs = model.predict_proba(X_live_scaled)[:, 1]
-    map_data = pd.DataFrame({
+    st.markdown("""
+        <div style="line-height: 2.2; font-size: 13px;">
+        🟢 <span style="color: #e2e8f0; margin-left: 8px;">Low Risk Vector (Secure)</span><br>
+        🟡 <span style="color: #e2e8f0; margin-left: 8px;">Moderate Caution Required</span><br>
+        🔴 <span style="color: #e2e8f0; margin-left: 8px;">High Risk Threat Vector</span>
+        </div>
+    """, unsafe_allow_html=True)
+
+TOTAL_POINTS = 35000
+X_live = X_template.sample(TOTAL_POINTS, random_state=42).copy()
+X_live_scaled = scaler.transform(X_live)
+y_probs = model.predict_proba(X_live_scaled)[:, 1]
+
+map_data = pd.DataFrame({
     'lat': X_live['latitude'].values,
     'lon': X_live['longitude'].values,
     'risk_prob': y_probs
-    })
-    almaty_map = folium.Map(location=[43.25, 76.92], zoom_start=11, tiles='https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', attr='© OpenStreetMap France')
-    alert_red = 0.58 if (current_hour >= 22 or current_hour <= 4) else 0.72
-    alert_yellow = 0.40 if (current_hour >= 22 or current_hour <= 4) else 0.52
-    circle_radius = 650
-    min_distance = 0.0095
-    drawn_centers = []
-    for idx, row in map_data.iterrows():
+})
+
+almaty_map = folium.Map(location=[43.25, 76.92], zoom_start=11, tiles='https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', attr='&copy; OpenStreetMap France')
+
+alert_red = 0.58 if (current_hour >= 22 or current_hour <= 4) else 0.72
+alert_yellow = 0.40 if (current_hour >= 22 or current_hour <= 4) else 0.52
+circle_radius = 650
+min_distance = 0.0095
+drawn_centers = []
+
+for idx, row in map_data.iterrows():
     c_lat, c_lon = row['lat'], row['lon']
     is_overlapping = False
     for p_lat, p_lon in drawn_centers:
-    if np.sqrt((c_lat - p_lat)**2 + (c_lon - p_lon)**2) < min_distance:
-    is_overlapping = True
-    break
-    if is_overlapping: continue
+        if np.sqrt((c_lat - p_lat)**2 + (c_lon - p_lon)**2) < min_distance:
+            is_overlapping = True
+            break
+    if is_overlapping: 
+        continue
+        
     drawn_centers.append((c_lat, c_lon))
     prob = row['risk_prob']
     color_zone = 'red' if prob > alert_red else ('lime' if prob > alert_yellow else 'darkgreen')
-    folium.Circle(location=[c_lat, c_lon], radius=circle_radius, color=color_zone, weight=1, fill=True, fill_color=color_zone, fill_opacity=0.45, popup=f"Risk Probability: {round(prob * 100, 1)}%").add_to(almaty_map)
-    st_folium(almaty_map, width="100%", height=700, returned_objects=[])
     
+    folium.Circle(
+        location=[c_lat, c_lon], 
+        radius=circle_radius, 
+        color=color_zone, 
+        weight=1, 
+        fill=True, 
+        fill_color=color_zone, 
+        fill_opacity=0.45, 
+        popup=f"Risk Probability: {round(prob * 100, 1)}%"
+    ).add_to(almaty_map)
+
+st_folium(almaty_map, width="100%", height=700, returned_objects=[])
