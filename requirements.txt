@@ -1,0 +1,7 @@
+streamlit==1.42.0
+streamlit-folium==0.18.0
+folium==0.16.0
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.0
+pytz==2024.1
